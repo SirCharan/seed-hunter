@@ -25,7 +25,7 @@ import os
 import sys
 import time
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 try:
     import aiohttp
@@ -63,6 +63,10 @@ DEFAULT_PROGRESS = "checker_progress.txt"
 # Fast core set: 4 chains × 1 API call (tx-only) = 4 calls/addr
 DEFAULT_CHAINS = "ethereum,polygon,arbitrum,monad"
 ETHERSCAN_V2 = "https://api.etherscan.io/v2/api"
+
+# Clean GitHub-friendly archives (phrase + address always for activity/capital)
+ACTIVITY_SEEDS_FILE = "activity_seeds.jsonl"
+CAPITAL_SEEDS_FILE = "capital_seeds.jsonl"
 
 
 @dataclass(frozen=True)
@@ -156,13 +160,73 @@ def save_progress(path: str, line_no: int) -> None:
 
 
 def append_hit(path: str, hit: dict) -> None:
+    """Append one JSON object as a line (process-safe via flock)."""
     with open(path, "a", encoding="utf-8") as f:
         fcntl.flock(f.fileno(), fcntl.LOCK_EX)
         try:
-            json.dump(hit, f)
+            json.dump(hit, f, ensure_ascii=False)
             f.write("\n")
         finally:
             fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+
+
+def activity_seed_record(hit: dict) -> dict:
+    """Clean archive row: phrase + address + activity fields (for GitHub)."""
+    rec: Dict[str, Any] = {
+        "phrase": hit.get("phrase"),
+        "address": hit.get("address"),
+        "nonce": hit.get("nonce"),
+        "balance_eth": hit.get("balance_eth"),
+        "chain": hit.get("chain"),
+        "timestamp": hit.get("timestamp"),
+    }
+    for key in ("chain_id", "hit_type", "entropy_index", "path", "source", "has_tx"):
+        if hit.get(key) is not None:
+            rec[key] = hit[key]
+    return rec
+
+
+def capital_seed_record(hit: dict) -> dict:
+    """Clean archive row: phrase + address + balance (for GitHub)."""
+    rec: Dict[str, Any] = {
+        "phrase": hit.get("phrase"),
+        "address": hit.get("address"),
+        "balance_eth": hit.get("balance_eth"),
+    }
+    for key in ("nonce", "chain", "chain_id", "timestamp", "hit_type", "entropy_index"):
+        if hit.get(key) is not None:
+            rec[key] = hit[key]
+    return rec
+
+
+def append_activity_hit(
+    activity_file: str,
+    hit: dict,
+    *,
+    seeds_file: str = ACTIVITY_SEEDS_FILE,
+) -> None:
+    """
+    Persist a nonce>0 activity hit to BOTH:
+      - activity_file (e.g. found_wallets_activity.jsonl) full record
+      - activity_seeds.jsonl clean archive (phrase, address, nonce, ...)
+    """
+    append_hit(activity_file, hit)
+    append_hit(seeds_file, activity_seed_record(hit))
+
+
+def append_capital_hit(
+    results_file: str,
+    hit: dict,
+    *,
+    seeds_file: str = CAPITAL_SEEDS_FILE,
+) -> None:
+    """
+    Persist a balance>0 capital hit to BOTH:
+      - results_file (e.g. found_wallets_capital.jsonl) full record
+      - capital_seeds.jsonl clean archive (phrase, address, balance, ...)
+    """
+    append_hit(results_file, hit)
+    append_hit(seeds_file, capital_seed_record(hit))
 
 
 class EtherscanClient:
@@ -383,7 +447,14 @@ async def run_checker(cfg: Config) -> int:
                         )
 
                     for hit in hits:
-                        append_hit(cfg.results_file, hit)
+                        bal = float(hit.get("balance_eth") or 0)
+                        if bal > 0:
+                            append_capital_hit(cfg.results_file, {**hit, "hit_type": "capital"})
+                        else:
+                            append_activity_hit(
+                                "found_wallets_activity.jsonl",
+                                {**hit, "hit_type": "activity", "nonce": hit.get("nonce", 1)},
+                            )
                         hits_total += 1
                         print(f"\n{'='*80}")
                         print(f"HIT on {hit['chain']}: {hit['address']}  balance={hit['balance_eth']}")

@@ -124,8 +124,9 @@ Healthy log looks like:
 
 Hits (if any):
 ```bash
-wc -l found_wallets_capital.jsonl found_wallets_activity.jsonl 2>/dev/null
-tail -n 5 found_wallets_capital.jsonl 2>/dev/null
+wc -l found_wallets_capital.jsonl found_wallets_activity.jsonl activity_seeds.jsonl capital_seeds.jsonl 2>/dev/null
+tail -n 5 found_wallets_activity.jsonl 2>/dev/null
+python export_activity_summary.py
 ```
 
 ---
@@ -203,6 +204,61 @@ export RPC_URLS_ETHEREUM='https://ethereum.publicnode.com,https://cloudflare-eth
 
 ---
 
+## Save activity hits to GitHub
+
+Activity hits (`nonce > 0`) always write **phrase + address** (plus nonce, balance, chain, etc.) to:
+
+| File | Purpose |
+|------|---------|
+| `found_wallets_activity.jsonl` | Full bulk record (still written) |
+| `activity_seeds.jsonl` | Clean archive — one JSON object per line (phrase, address, nonce, …) |
+
+Capital hits (`balance > 0`) write to:
+
+| File | Purpose |
+|------|---------|
+| `found_wallets_capital.jsonl` | Full bulk record |
+| `capital_seeds.jsonl` | Clean archive — phrase + address + balance |
+
+These four files are **not** gitignored (by design) so you can push findings from the VM.
+
+### After a hit appears (or to backfill old bulk files)
+
+```bash
+cd ~/seed-hunter
+source .venv/bin/activate
+
+# 1) If you already have found_wallets_activity.jsonl from before this update,
+#    copy unique rows into the clean archive (safe to re-run):
+python export_activity_summary.py --migrate --capital
+
+# 2) Review human-readable table (phrase + address):
+python export_activity_summary.py
+
+# 3) Commit and push findings to GitHub
+git pull origin main
+git add found_wallets_activity.jsonl found_wallets_capital.jsonl \
+        activity_seeds.jsonl capital_seeds.jsonl
+git status
+git commit -m "chore: archive activity/capital seed hits from Linux VM"
+git push origin main
+```
+
+### One-liner after workers are already running
+
+```bash
+cd ~/seed-hunter && source .venv/bin/activate && \
+python export_activity_summary.py --migrate --capital && \
+git pull origin main && \
+git add found_wallets_activity.jsonl found_wallets_capital.jsonl activity_seeds.jsonl capital_seeds.jsonl && \
+git commit -m "chore: archive activity/capital seed hits from Linux VM" && \
+git push origin main
+```
+
+(If `git commit` says “nothing to commit”, there are no new lines to push.)
+
+---
+
 ## One-shot copy-paste (full setup + start)
 
 ```bash
@@ -251,8 +307,11 @@ ls -la shard_*.log
 | `seed_hunter_keys` | Free Etherscan keys |
 | `shard_*_w*.txt` | Progress (keep for resume) |
 | `shard_*_w*.log` | Per-worker logs |
-| `found_wallets_capital.jsonl` | Balance > 0 hits |
-| `found_wallets_activity.jsonl` | Nonce > 0 (maybe empty) |
+| `found_wallets_capital.jsonl` | Balance > 0 hits (tracked) |
+| `found_wallets_activity.jsonl` | Nonce > 0 hits (tracked) |
+| `activity_seeds.jsonl` | Clean activity archive (phrase+address) |
+| `capital_seeds.jsonl` | Clean capital archive (phrase+address+balance) |
+| `export_activity_summary.py` | Table + migrate bulk → archive |
 
 ---
 

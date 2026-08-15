@@ -12,8 +12,12 @@
 | File | Contents |
 |------|----------|
 | `found_wallets_capital.jsonl` | `balance > 0` (+ optional `etherscan_balance_eth` if F) |
-| `found_wallets_activity.jsonl` | `nonce > 0` (may be drained) |
+| `found_wallets_activity.jsonl` | `nonce > 0` (may be drained) — includes phrase |
+| `capital_seeds.jsonl` | Clean capital archive (phrase + address + balance) |
+| `activity_seeds.jsonl` | Clean activity archive (phrase + address + nonce) |
 | `shard_*_w*.txt` | Progress only — **keep for resume** |
+
+Push findings: see **Save activity hits to GitHub** in [RUN_ON_LINUX.md](./RUN_ON_LINUX.md).
 
 ## Quick start
 ```bash

@@ -11,6 +11,18 @@ Multi-shard BIP39 enumerator — **RPC-first** Ethereum checks.
 
 Free Etherscan keys ship in **`seed_hunter_keys`** (auto-loaded).
 
+### Hit archives (committed)
+
+| File | When |
+|------|------|
+| `found_wallets_activity.jsonl` + `activity_seeds.jsonl` | `nonce > 0` (phrase + address always) |
+| `found_wallets_capital.jsonl` + `capital_seeds.jsonl` | `balance > 0` (phrase + address + balance) |
+
+```bash
+python export_activity_summary.py              # table of phrase + address
+python export_activity_summary.py --migrate --capital   # backfill archives
+```
+
 ---
 
 ## Full commands (start here)
@@ -54,4 +66,4 @@ Uniform search over `2^128` valid 12-word BIP39 phrases has effectively **zero**
 
 ## License
 
-Private research tooling. Runtime hits/logs are gitignored; free-tier keys are intentionally in-repo.
+Private research tooling. Progress/logs are gitignored; activity/capital hit archives are intentionally tracked. Free-tier keys are intentionally in-repo.

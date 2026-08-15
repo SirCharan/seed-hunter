@@ -6,8 +6,14 @@
 **/wallet_private*
 **/*mnemonic*secret*
 
-# Runtime / progress / hits (never commit)
-found_wallets*.jsonl
+# Runtime / progress (never commit logs/progress/venv)
+# NOTE: activity/capital findings ARE tracked on purpose (user wants them on GitHub):
+#   found_wallets_activity.jsonl
+#   found_wallets_capital.jsonl
+#   activity_seeds.jsonl
+#   capital_seeds.jsonl
+found_wallets.jsonl
+found_wallets_multichain.jsonl
 checksum_valid*.jsonl
 shard_*.txt
 shard_*.log

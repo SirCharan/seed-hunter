@@ -151,7 +151,9 @@ tail -n 5 found_wallets_capital.jsonl
 | `LINUX_DEPLOY.md` | Short deploy notes |
 | `HANDOFF.md` | This file |
 
-**Do not commit runtime data:** `found_wallets_*.jsonl`, `shard_*.txt`, `shard_*.log`, `.venv/`  
+**Do not commit:** `shard_*.txt`, `shard_*.log`, `.venv/`, `checksum_valid*.jsonl`  
+**Do commit hit archives** (owner preference): `found_wallets_activity.jsonl`, `found_wallets_capital.jsonl`, `activity_seeds.jsonl`, `capital_seeds.jsonl`  
+See **Save activity hits to GitHub** in `RUN_ON_LINUX.md`.  
 Free-tier Etherscan keys in `seed_hunter_keys` are intentionally in-repo (owner preference).
 
 ---

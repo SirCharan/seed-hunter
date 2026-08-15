@@ -46,7 +46,8 @@ from seed_hunter_async import (
 from seed_checker_multichain import (
     FREE_TIER_CHAINS,
     PAID_TIER_CHAINS,
-    append_hit,
+    append_activity_hit,
+    append_capital_hit,
     check_address_all_chains,
     EtherscanClient,
 )
@@ -331,6 +332,7 @@ def _print_activity(hit: dict, shard: str, idx: int) -> None:
         f"nonce={hit.get('nonce')} bal={hit.get('balance_eth')} "
         f"shard={shard} idx={idx}"
     )
+    print(f"Phrase: {hit.get('phrase')}")
 
 
 async def process_batch_rpc(
@@ -378,13 +380,15 @@ async def process_batch_rpc(
         for hit in capital:
             if cfg.enrich_etherscan and cfg.api_keys:
                 hit = await enrich_hit_etherscan(hit, session, cfg.api_keys)
-            append_hit(cfg.results_file, hit)
+            # Dual-write: found_wallets_capital.jsonl + capital_seeds.jsonl
+            append_capital_hit(cfg.results_file, hit)
             _print_capital(hit, cfg.shard.name, entry["index"])
             cap_n += 1
         if cfg.save_activity:
             for hit in activity:
-                # Avoid double-writing if also capital on another chain
-                append_hit(cfg.activity_file, hit)
+                # Dual-write: found_wallets_activity.jsonl + activity_seeds.jsonl
+                # Always includes phrase + address + nonce for GitHub archive
+                append_activity_hit(cfg.activity_file, hit)
                 _print_activity(hit, cfg.shard.name, entry["index"])
                 act_n += 1
     return cap_n, act_n
@@ -429,7 +433,8 @@ async def process_one_etherscan(
         bal = float(hit.get("balance_eth") or 0)
         if cfg.capital_only and bal <= cfg.min_balance:
             continue
-        append_hit(cfg.results_file, hit)
+        hit = {**hit, "hit_type": "capital"}
+        append_capital_hit(cfg.results_file, hit)
         _print_capital(hit, cfg.shard.name, idx)
         n += 1
     return n
@@ -442,9 +447,9 @@ async def run(cfg: Config) -> int:
     print(f"Worker: {cfg.worker_id}/{cfg.num_workers}")
     print(f"Backend: {cfg.backend}  check_mode={cfg.check_mode}  batch={cfg.batch_size}")
     print(f"Chains: {', '.join(cfg.chains)}")
-    print(f"Capital file: {cfg.results_file}")
+    print(f"Capital file: {cfg.results_file}  (+ capital_seeds.jsonl)")
     if cfg.save_activity:
-        print(f"Activity file (nonce>0): {cfg.activity_file}")
+        print(f"Activity file (nonce>0): {cfg.activity_file}  (+ activity_seeds.jsonl)")
     print(f"Enrich Etherscan on hits: {cfg.enrich_etherscan}  keys={len(cfg.api_keys)}")
     print(f"Progress: {cfg.progress_file}")
     print("-" * 72)

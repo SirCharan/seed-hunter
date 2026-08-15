@@ -16,6 +16,16 @@ if [[ -f found_wallets_activity.jsonl ]]; then
 else
   echo "ACTIVITY_HITS: 0"
 fi
+if [[ -f activity_seeds.jsonl ]]; then
+  echo "ACTIVITY_SEEDS: $(wc -l < activity_seeds.jsonl | tr -d ' ')"
+else
+  echo "ACTIVITY_SEEDS: 0"
+fi
+if [[ -f capital_seeds.jsonl ]]; then
+  echo "CAPITAL_SEEDS: $(wc -l < capital_seeds.jsonl | tr -d ' ')"
+else
+  echo "CAPITAL_SEEDS: 0"
+fi
 python3 - <<'PY'
 import os, re, subprocess
 from collections import defaultdict
