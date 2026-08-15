@@ -15,7 +15,7 @@ Free Etherscan keys ship in **`seed_hunter_keys`** (auto-loaded).
 
 | File | When |
 |------|------|
-| `found_wallets_activity.jsonl` + `activity_seeds.jsonl` | `nonce > 0` (phrase + address always) |
+| `found_wallets_activity.jsonl` + **`activity_seeds.jsonl`** | `nonce > 0` (phrase + address always) |
 | `found_wallets_capital.jsonl` + `capital_seeds.jsonl` | `balance > 0` (phrase + address + balance) |
 
 ```bash
@@ -27,7 +27,7 @@ python export_activity_summary.py --migrate --capital   # backfill archives
 
 ## Full commands (start here)
 
-**→ [RUN_ON_LINUX.md](./RUN_ON_LINUX.md)** — every step and copy-paste command to run on Linux / Adaptive VM.
+**→ [RUN_ON_LINUX.md](./RUN_ON_LINUX.md)** — **main guide** for Adaptive VM / Linux: install, daily ops, git pull, migrate & push hits, keep-alive, config env table, **large ERROR HANDLING** section, health checklist.
 
 ### One-shot
 ```bash
@@ -56,7 +56,7 @@ FORCE_RESTART=1 ./start_linux_primary.sh
 
 ## Other docs
 
-- **[RUN_ON_LINUX.md](./RUN_ON_LINUX.md)** — complete terminal runbook  
+- **[RUN_ON_LINUX.md](./RUN_ON_LINUX.md)** — complete terminal runbook (commands + errors)  
 - **[HANDOFF.md](./HANDOFF.md)** — handoff for Grok / Adaptive VM  
 - **[LINUX_DEPLOY.md](./LINUX_DEPLOY.md)** — short deploy notes  
 

@@ -5,6 +5,8 @@
 **Repo:** `https://github.com/SirCharan/seed-hunter` (clone this first)  
 **Date context:** 2026-08-15  
 
+> **Humans: use [RUN_ON_LINUX.md](./RUN_ON_LINUX.md)** — full copy-paste commands, migrate/push hits, config env table, and a large **ERROR HANDLING** section (auth, rate 0, OOM, git push, etc.). This file is agent-oriented; that file is the human runbook.
+
 ---
 
 ## Mission (what “done” looks like)
@@ -48,7 +50,8 @@ DO NOT start: seed_stream.py, seed_hunter_random.py, seed_hunter_async derive-on
 
 ## Bootstrap on Adaptive VM (run these)
 
-**Full human runbook with every command:** **[RUN_ON_LINUX.md](./RUN_ON_LINUX.md)**
+**Humans:** full commands + errors → **[RUN_ON_LINUX.md](./RUN_ON_LINUX.md)**  
+**Agents:** same bootstrap below; diagnose stalls using RUN_ON_LINUX §10 ERROR HANDLING.
 
 ```bash
 # 1) Clone
