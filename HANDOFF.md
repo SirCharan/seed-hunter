@@ -48,6 +48,8 @@ DO NOT start: seed_stream.py, seed_hunter_random.py, seed_hunter_async derive-on
 
 ## Bootstrap on Adaptive VM (run these)
 
+**Full human runbook with every command:** **[RUN_ON_LINUX.md](./RUN_ON_LINUX.md)**
+
 ```bash
 # 1) Clone
 git clone https://github.com/SirCharan/seed-hunter.git
