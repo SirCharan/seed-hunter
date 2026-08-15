@@ -1,0 +1,5 @@
+aiohttp>=3.9.0
+eth-account>=0.11.0
+mnemonic>=0.21
+# web3 only needed for legacy seed_hunter_async / random runners
+web3>=6.0.0

@@ -1,0 +1,36 @@
+# Secrets
+.seed_hunter_keys
+**/.seed_hunter_keys
+*.pem
+.env
+.env.*
+
+# Runtime / progress / hits (never commit)
+found_wallets*.jsonl
+checksum_valid*.jsonl
+shard_*.txt
+shard_*.log
+shard_cron.log
+stream_progress*.txt
+checker_progress*.txt
+seed_*_progress*.txt
+*.migrate.lock
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Large local noise
+*.log
+nohup.out
