@@ -58,11 +58,13 @@ source .venv/bin/activate
 pip install -U pip
 pip install -r requirements.txt
 
-chmod +x start_linux_primary.sh kill_shards.sh status_shards.sh load_api_keys.sh
+chmod +x start_linux_primary.sh kill_shards.sh status_shards.sh load_api_keys.sh ensure_alive.sh
 
 ./start_linux_primary.sh
 ./status_shards.sh
 tail -n 30 shard_low_fwd_w0.log
+
+# Then set cron — see section 7 (ensure_alive.sh from this repo)
 ```
 
 **Private repo auth:** if `git clone` fails, see [ERROR HANDLING → git clone/pull auth](#git-clonepull-auth-fails-private-repo).
@@ -217,44 +219,74 @@ python export_activity_summary.py
 
 ---
 
-## 7. Keep alive
+## 7. Keep alive forever (progress-safe + cron)
 
-Workers are started with `nohup` and survive SSH logout. Still useful:
+Progress is stored in `shard_*_w*.txt` — **never delete those**.  
+`ensure_alive.sh` is **in the repo** (no `cat` / paste scripts). It only starts **missing** workers; it does **not** kill healthy ones or wipe progress.
 
-### A) tmux (recommended for interactive ops)
+### A) Pull script + start workers once
 
 ```bash
-# Once
-sudo apt install -y tmux
-
-tmux new -s seed
 cd ~/seed-hunter
+git pull origin main
 source .venv/bin/activate
-./start_linux_primary.sh
+chmod +x ensure_alive.sh start_linux_primary.sh kill_shards.sh status_shards.sh
+./ensure_alive.sh
 ./status_shards.sh
+tail -n 5 ensure_alive.log
 ```
 
-- **Detach:** `Ctrl+b` then `d`
-- **Reattach:** `tmux attach -t seed`
-- **List sessions:** `tmux ls`
+Expect `procs=16` (4 shards × 4 workers). Override if needed: `EXPECT_SHARD_PROCS=16`.
 
-### B) Optional hourly cron (restarts dead workers; skips if already running)
+### B) Cron: every 5 minutes + after reboot
 
 ```bash
 crontab -e
 ```
 
-Add (replace path if needed):
+Add these two lines (path = your clone; default Adaptive user is `ubuntu`):
 
 ```cron
-0 * * * * cd $HOME/seed-hunter && . .venv/bin/activate && ./start_linux_primary.sh >> shard_cron.log 2>&1
+*/5 * * * * /home/ubuntu/seed-hunter/ensure_alive.sh
+@reboot sleep 60 && /home/ubuntu/seed-hunter/ensure_alive.sh
 ```
 
-Check cron log:
+If your home user is not `ubuntu`:
+
+```cron
+*/5 * * * * $HOME/seed-hunter/ensure_alive.sh
+@reboot sleep 60 && $HOME/seed-hunter/ensure_alive.sh
+```
+
+Verify:
 
 ```bash
-tail -n 50 ~/seed-hunter/shard_cron.log
+crontab -l
+./ensure_alive.sh
+tail -n 20 ensure_alive.log
+pgrep -af 'seed_shard.py' | wc -l
 ```
+
+### C) Optional tmux (for watching logs only)
+
+Workers already use `nohup` + cron; tmux is optional for interactive ops.
+
+```bash
+sudo apt install -y tmux
+tmux new -s seed
+cd ~/seed-hunter && source .venv/bin/activate && ./status_shards.sh
+# Detach: Ctrl+b then d
+# Reattach: tmux attach -t seed
+```
+
+### D) What not to do
+
+| Don't | Why |
+|-------|-----|
+| Delete `shard_*_w*.txt` | Loses resume position |
+| Change `WORKERS_PER_SHARD` after first run | Reshuffles stripes |
+| Cron with `FORCE_RESTART=1` | Kills healthy workers every time |
+| Install keep-alive via `cat > script` | Use repo `ensure_alive.sh` only |
 
 ---
 

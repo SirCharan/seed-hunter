@@ -52,6 +52,17 @@ cd ~/seed-hunter && source .venv/bin/activate
 FORCE_RESTART=1 ./start_linux_primary.sh
 ```
 
+### Keep alive forever (repo script + cron)
+```bash
+cd ~/seed-hunter
+git pull origin main
+chmod +x ensure_alive.sh
+./ensure_alive.sh
+# crontab -e  →  see RUN_ON_LINUX.md section 7
+# */5 * * * * /home/ubuntu/seed-hunter/ensure_alive.sh
+# @reboot sleep 60 && /home/ubuntu/seed-hunter/ensure_alive.sh
+```
+
 ---
 
 ## Other docs
