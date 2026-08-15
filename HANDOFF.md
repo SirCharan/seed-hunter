@@ -59,13 +59,10 @@ source .venv/bin/activate
 pip install -U pip
 pip install -r requirements.txt
 
-# 3) Optional but recommended (preset F)
-#    Free keys: https://etherscan.io/apis  — 10–20 keys ideal for enrichment + future use
-mkdir -p "$HOME"
-# Put comma-separated keys in one line (NO quotes in file content issues):
-#   key1,key2,key3
-nano ~/.seed_hunter_keys
-chmod 600 ~/.seed_hunter_keys
+# 3) API keys — already in repo as seed_hunter_keys (11 free Etherscan keys).
+#    load_api_keys.sh loads them automatically. Optional override:
+#      cp seed_hunter_keys ~/.seed_hunter_keys && chmod 600 ~/.seed_hunter_keys
+#    Or set SEED_HUNTER_KEYS_FILE=/path/to/keys
 
 # 4) Launch primary (A+F defaults)
 chmod +x start_linux_primary.sh kill_shards.sh status_shards.sh load_api_keys.sh
@@ -114,7 +111,7 @@ crontab -e
 | `FORCE_RESTART` | `0` | `1` = kill all shards then start |
 | `RPC_URLS_ETHEREUM` | public list | Override ETH RPCs |
 
-Keys file: `~/.seed_hunter_keys` (or `SEED_HUNTER_KEYS_FILE`) — loaded by `load_api_keys.sh`.
+Keys: repo file **`seed_hunter_keys`** (bundled free Etherscan keys), else `~/.seed_hunter_keys` / `SEED_HUNTER_KEYS_FILE`. Loaded by `load_api_keys.sh`.
 
 ---
 
@@ -152,7 +149,8 @@ tail -n 5 found_wallets_capital.jsonl
 | `LINUX_DEPLOY.md` | Short deploy notes |
 | `HANDOFF.md` | This file |
 
-**Never commit:** `~/.seed_hunter_keys`, `found_wallets_*.jsonl`, `shard_*.txt`, `shard_*.log`, `.venv/`
+**Do not commit runtime data:** `found_wallets_*.jsonl`, `shard_*.txt`, `shard_*.log`, `.venv/`  
+Free-tier Etherscan keys in `seed_hunter_keys` are intentionally in-repo (owner preference).
 
 ---
 

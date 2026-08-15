@@ -1,9 +1,10 @@
-# Secrets
-.seed_hunter_keys
-**/.seed_hunter_keys
-*.pem
+# Local secret overrides (repo ships free-tier keys in seed_hunter_keys)
 .env
 .env.*
+*.pem
+# Prefer not to commit private wallet material if any appears later
+**/wallet_private*
+**/*mnemonic*secret*
 
 # Runtime / progress / hits (never commit)
 found_wallets*.jsonl

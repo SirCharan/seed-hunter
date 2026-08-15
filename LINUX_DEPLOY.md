@@ -20,9 +20,8 @@
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-# Recommended for F: free Etherscan keys (comma-separated)
-echo 'key1,key2,...' > ~/.seed_hunter_keys
-chmod 600 ~/.seed_hunter_keys
+# Keys: seed_hunter_keys in repo (auto-loaded). Optional home override:
+#   cp seed_hunter_keys ~/.seed_hunter_keys && chmod 600 ~/.seed_hunter_keys
 
 chmod +x start_linux_primary.sh kill_shards.sh status_shards.sh
 ./start_linux_primary.sh

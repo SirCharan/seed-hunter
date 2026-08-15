@@ -13,13 +13,12 @@ Multi-shard BIP39 enumerator with **RPC-first** Ethereum checks.
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-# Optional — enables preset F enrichment
-echo 'YOUR_ETHERSCAN_KEY1,KEY2' > ~/.seed_hunter_keys
-chmod 600 ~/.seed_hunter_keys
-
+# Free Etherscan keys ship in seed_hunter_keys (preset F enrichment)
 ./start_linux_primary.sh
 ./status_shards.sh
 ```
+
+Bundled keys: `seed_hunter_keys` (loaded automatically). Override with `~/.seed_hunter_keys` or `SEED_HUNTER_KEYS_FILE`.
 
 ## Docs
 
