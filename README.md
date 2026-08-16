@@ -29,6 +29,8 @@ python export_activity_summary.py --migrate --capital   # backfill archives
 
 **→ [RUN_ON_LINUX.md](./RUN_ON_LINUX.md)** — **main guide** for Adaptive VM / Linux: install, daily ops, git pull, migrate & push hits, keep-alive, config env table, **large ERROR HANDLING** section, health checklist.
 
+**→ [CHECK_PROGRESS.md](./CHECK_PROGRESS.md)** — after 1 day (or anytime): status, rate, progress files, hits, cron, push to GitHub.
+
 ### One-shot
 ```bash
 cd ~

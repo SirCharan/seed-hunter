@@ -78,6 +78,40 @@ echo "$ETHERSCAN_API_KEY" | tr ',' '\n' | grep -c .
 
 ---
 
+## 3a. Check progress (after 1 day or anytime)
+
+**Full copy-paste guide:** **[CHECK_PROGRESS.md](./CHECK_PROGRESS.md)**
+
+Quick:
+
+```bash
+cd ~/seed-hunter
+source .venv/bin/activate
+
+./status_shards.sh
+pgrep -af 'seed_shard.py' | wc -l
+tail -n 20 ensure_alive.log
+
+wc -l activity_seeds.jsonl found_wallets_activity.jsonl \
+      capital_seeds.jsonl found_wallets_capital.jsonl 2>/dev/null
+tail -n 5 activity_seeds.jsonl 2>/dev/null
+
+# Live log (Ctrl+C stops watch only)
+# tail -f shard_low_fwd_w0.log
+```
+
+| Healthy | Meaning |
+|---------|---------|
+| `SHARD_PROCS: 16` | All workers up |
+| `AGG_RATE` > 0 | Still checking addresses |
+| `ensure_alive.log` recent `ok` | Cron/heal working |
+| `CAPITAL_HITS` | Funded wallets |
+| `ACTIVITY_HITS` | Past-use wallets (often empty balance) |
+
+Hits save **on the VM automatically**. GitHub needs a manual `git push` (see CHECK_PROGRESS.md).
+
+---
+
 ## 3. Daily / after reboot
 
 ```bash
