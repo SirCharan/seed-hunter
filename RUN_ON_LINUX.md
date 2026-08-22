@@ -256,7 +256,7 @@ python export_activity_summary.py
 ## 7. Keep alive forever (progress-safe + cron)
 
 Progress is stored in `shard_*_w*.txt` — **never delete those**.  
-`ensure_alive.sh` is **in the repo** (no `cat` / paste scripts). It only starts **missing** workers; it does **not** kill healthy ones or wipe progress.
+`ensure_alive.sh` is **in the repo** (no `cat` / paste scripts). It starts **missing** workers and kills only **stale** ones (log mtime older than 15 minutes — hung-but-alive). It does **not** `FORCE_RESTART` healthy workers or wipe progress.
 
 ### A) Pull script + start workers once
 
@@ -283,6 +283,7 @@ Add these two lines (path = your clone; default Adaptive user is `ubuntu`):
 ```cron
 */5 * * * * /home/ubuntu/seed-hunter/ensure_alive.sh
 @reboot sleep 60 && /home/ubuntu/seed-hunter/ensure_alive.sh
+0 3 * * * /usr/sbin/logrotate -s /home/ubuntu/seed-hunter/.logrotate.status /home/ubuntu/seed-hunter/seed-hunter.logrotate
 ```
 
 If your home user is not `ubuntu`:
@@ -290,7 +291,10 @@ If your home user is not `ubuntu`:
 ```cron
 */5 * * * * $HOME/seed-hunter/ensure_alive.sh
 @reboot sleep 60 && $HOME/seed-hunter/ensure_alive.sh
+0 3 * * * /usr/sbin/logrotate -s $HOME/seed-hunter/.logrotate.status $HOME/seed-hunter/seed-hunter.logrotate
 ```
+
+Logrotate uses `copytruncate` so nohup workers keep writing. Rotate daily (or at 50MB), keep 7.
 
 Verify:
 
@@ -298,8 +302,11 @@ Verify:
 crontab -l
 ./ensure_alive.sh
 tail -n 20 ensure_alive.log
-pgrep -af 'seed_shard.py' | wc -l
+./daily_digest.sh
 ```
+
+Expect `ok procs=16` (or `STALL` + `after procs=16` if a hung worker was replaced).  
+`./daily_digest.sh` is what the daily Grok Task runs. It heals via `ensure_alive.sh` and never sets `FORCE_RESTART`. Rate 0 with live logs is reported as RPC-dead, not a hard restart.
 
 ### C) Optional tmux (for watching logs only)
 

@@ -3,7 +3,7 @@ set -uo pipefail
 cd "$(dirname "$0")"
 echo "TIME: $(date '+%Y-%m-%d %H:%M %Z')"
 echo "DISK: $(df -h . | awk 'NR==2 {print $4}') free"
-echo "SHARD_PROCS: $(pgrep -f 'seed_shard.py --shard' 2>/dev/null | wc -l | tr -d ' ')"
+echo "SHARD_PROCS: $(ps -C python,python3 -o args= 2>/dev/null | grep -cF -- 'seed_shard.py --shard ' || true)"
 echo "OLD_STREAM: $(pgrep -f 'seed_stream.py --workers' 2>/dev/null | wc -l | tr -d ' ')"
 echo "RANDOM: $(pgrep -f 'seed_hunter_random.py' 2>/dev/null | wc -l | tr -d ' ')"
 if [[ -f found_wallets_capital.jsonl ]]; then

@@ -58,11 +58,14 @@ FORCE_RESTART=1 ./start_linux_primary.sh
 ```bash
 cd ~/seed-hunter
 git pull origin main
-chmod +x ensure_alive.sh
+chmod +x ensure_alive.sh daily_digest.sh
 ./ensure_alive.sh
+./daily_digest.sh
 # crontab -e  →  see RUN_ON_LINUX.md section 7
 # */5 * * * * /home/ubuntu/seed-hunter/ensure_alive.sh
 # @reboot sleep 60 && /home/ubuntu/seed-hunter/ensure_alive.sh
+# 0 3 * * * logrotate … seed-hunter.logrotate
+# Daily Grok Task runs daily_digest.sh (never FORCE_RESTART)
 ```
 
 ---

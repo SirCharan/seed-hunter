@@ -135,13 +135,17 @@ crontab -l
 # expect:
 # */5 * * * * /home/ubuntu/seed-hunter/ensure_alive.sh
 # @reboot sleep 60 && /home/ubuntu/seed-hunter/ensure_alive.sh
+# 0 3 * * * /usr/sbin/logrotate -s /home/ubuntu/seed-hunter/.logrotate.status /home/ubuntu/seed-hunter/seed-hunter.logrotate
 
 systemctl is-active cron || systemctl is-active crond
 
 tail -n 15 ~/seed-hunter/ensure_alive.log
+./daily_digest.sh
 ```
 
-Cron should produce `ok procs=16` around every 5 minutes when healthy.
+Cron should produce `ok procs=16` around every 5 minutes when healthy.  
+`STALL shard wN log_age=…` means a hung-but-alive worker was killed and replaced (progress files kept).  
+Daily Grok Task runs `./daily_digest.sh` and notifies (app + email). It never sets `FORCE_RESTART`.
 
 ---
 

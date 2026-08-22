@@ -1,0 +1,14 @@
+# User-level:  /usr/sbin/logrotate -s /home/ubuntu/seed-hunter/.logrotate.status /home/ubuntu/seed-hunter/seed-hunter.logrotate
+# copytruncate: workers keep the original fd (nohup >> shard_*.log)
+/home/ubuntu/seed-hunter/shard_*.log
+/home/ubuntu/seed-hunter/ensure_alive.log {
+  daily
+  maxsize 50M
+  rotate 7
+  compress
+  delaycompress
+  missingok
+  notifempty
+  copytruncate
+  dateext
+}

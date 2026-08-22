@@ -40,4 +40,6 @@ __pycache__/
 
 # Large local noise
 *.log
+*.log-*
 nohup.out
+.logrotate.status
